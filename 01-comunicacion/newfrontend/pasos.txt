@@ -1,0 +1,6 @@
+1. instalar nodejs
+2. crear la carpeta newfrontend
+3. copiar el package.json desde la carpeta frontend
+4. ejecutar npm install
+5. copiar el resto de archivos desde la carpeta frontend
+6. ejecutar npm run start
