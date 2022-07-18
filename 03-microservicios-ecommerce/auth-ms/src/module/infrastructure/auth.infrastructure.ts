@@ -1,8 +1,19 @@
-import auth from "../domain/auth";
-import AuthRepository, { Tokens } from "../domain/auth.repository";
-
+import Auth from "../domain/auth";
+import AuthRepository from "../domain/auth.repository";
+import Model from "./models/auth.model";
 export default class AuthInfrastructure implements AuthRepository {
-  register(auth: auth): string {
-    return "aa63c417-2a75-4ea9-807a-32b61942ed04";
+  async register(auth: Auth): Promise<void> {
+    await Model.create(auth);
+  }
+
+  async findOne(where: { [s: string]: string | number }): Promise<Auth | null> {
+    return await Model.findOne(where);
+  }
+
+  async update(
+    where: { [s: string]: string | number },
+    data: { [s: string]: string | number }
+  ): Promise<void> {
+    await Model.updateOne(where, data);
   }
 }

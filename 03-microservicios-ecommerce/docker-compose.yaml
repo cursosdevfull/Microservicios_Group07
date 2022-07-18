@@ -14,8 +14,64 @@ services:
     networks:
       - net-ms
 
+  mongo-order-ms:
+    image: mongo:3.6
+    container_name: mongo-order-ms
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-order-volume:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=12345
+    networks:
+      - net-ms
+
+  auth-ms:
+    build:
+      dockerfile: auth-ms/Dockerfile
+      context: .
+    image: image-auth-ms
+    container_name: auth-ms
+    ports:
+      - "9000:8000"
+    environment:
+      - PORT=8000
+      - MONGO_HOST=mongo-auth-ms
+      - MONGO_PORT=27017
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=12345
+      - TOKEN_TIMEOUT=15
+      - TOKEN_SECRET_WORD=c2611b83-6f7f-47a3-b622-55e0a0ff3333
+    depends_on:
+      - mongo-auth-ms
+    restart: always
+    networks:
+      - net-ms
+
+  order-ms:
+    build:
+      dockerfile: order-ms/Dockerfile
+      context: .
+    image: image-order-ms
+    container_name: order-ms
+    ports:
+      - "9100:8000"
+    environment:
+      - PORT=8000
+      - MONGO_HOST=mongo-order-ms
+      - MONGO_PORT=27017
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=12345
+    depends_on:
+      - mongo-order-ms
+    restart: always
+    networks:
+      - net-ms
+
 volumes:
   mongo-auth-volume:
+  mongo-order-volume:
 
 networks:
   net-ms:

@@ -21,12 +21,4 @@ export default class {
   static get MONGO_PASSWORD(): string {
     return process.env.MONGO_PASSWORD || env.DATABASE.MONGO.PASSWORD || "12345";
   }
-
-  static get TOKEN_TIMEOUT(): number {
-    return process.env.TOKEN_TIMEOUT || env.TOKEN.TIMEOUT || 15;
-  }
-
-  static get TOKEN_SECRET_WORD(): string {
-    return process.env.TOKEN_SECRET_WORD || env.TOKEN.SECRET_WORD || "AMERICA";
-  }
 }
