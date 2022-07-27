@@ -15,11 +15,13 @@ export default class AuthApplication {
     password: string
   ): Promise<Tokens> {
     const refreshToken = AuthAppService.generateRefreshToken();
-    const accessToken = AuthAppService.generateAccessToken(name);
     const cipherPassword = await AuthAppService.cipherPassword(password);
 
     const auth = new Auth(name, email, cipherPassword, refreshToken);
-    await this.repository.register(auth);
+    console.log("auth", auth);
+    const id = await this.repository.register(auth);
+    console.log("id", id);
+    const accessToken = AuthAppService.generateAccessToken(id, name);
 
     return { accessToken, refreshToken };
   }
@@ -35,7 +37,7 @@ export default class AuthApplication {
 
       if (isMatchPassword) {
         return {
-          accessToken: AuthAppService.generateAccessToken(auth.name),
+          accessToken: AuthAppService.generateAccessToken(auth._id, auth.name),
           refreshToken: auth.refreshToken,
         };
       } else {
@@ -54,7 +56,10 @@ export default class AuthApplication {
     const auth = await this.repository.findOne({ refreshToken });
 
     if (auth) {
-      const accessToken = AuthAppService.generateAccessToken(auth.name);
+      const accessToken = AuthAppService.generateAccessToken(
+        auth._id,
+        auth.name
+      );
       const newRefreshToken = AuthAppService.generateRefreshToken();
 
       await this.repository.update(

@@ -18,7 +18,7 @@ class App {
   }
 
   mountRoutes() {
-    this.expressApp.use("/auth", router);
+    this.expressApp.use("/order", router);
     this.expressApp.get("/", (req: Request, res: Response) => {
       res.send("All's ok");
     });

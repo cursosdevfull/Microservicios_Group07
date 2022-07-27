@@ -2,8 +2,10 @@ import Auth from "../domain/auth";
 import AuthRepository from "../domain/auth.repository";
 import Model from "./models/auth.model";
 export default class AuthInfrastructure implements AuthRepository {
-  async register(auth: Auth): Promise<void> {
-    await Model.create(auth);
+  async register(auth: Auth): Promise<string> {
+    const authCreated = await Model.create(auth);
+    console.log(authCreated);
+    return authCreated._id;
   }
 
   async findOne(where: { [s: string]: string | number }): Promise<Auth | null> {

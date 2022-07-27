@@ -27,6 +27,60 @@ services:
     networks:
       - net-ms
 
+  mongo-payment-ms:
+    image: mongo:3.6
+    container_name: mongo-payment-ms
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-payment-volume:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=12345
+    networks:
+      - net-ms
+
+  mongo-store-ms:
+    image: mongo:3.6
+    container_name: mongo-store-ms
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongo-store-volume:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=12345
+    networks:
+      - net-ms
+
+  mongo-delivery-ms:
+    image: mongo:3.6
+    container_name: mongo-delivery-ms
+    ports:
+      - "27021:27017"
+    volumes:
+      - mongo-delivery-volume:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=12345
+    networks:
+      - net-ms
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostic -q ping
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 2s
+    networks:
+      - net-ms
+
   auth-ms:
     build:
       dockerfile: auth-ms/Dockerfile
@@ -72,6 +126,9 @@ services:
 volumes:
   mongo-auth-volume:
   mongo-order-volume:
+  mongo-payment-volume:
+  mongo-store-volume:
+  mongo-delivery-volume:
 
 networks:
   net-ms:

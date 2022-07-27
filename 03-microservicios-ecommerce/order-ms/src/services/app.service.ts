@@ -21,4 +21,23 @@ export default class {
   static get MONGO_PASSWORD(): string {
     return process.env.MONGO_PASSWORD || env.DATABASE.MONGO.PASSWORD || "12345";
   }
+
+  static get RABBITMQ_HOST(): string {
+    return process.env.RABBITMQ_HOST || env.RABBITMQ.HOST || "localhost:5672";
+  }
+
+  static get QUEUE_ORDER_CREATED_EVENT(): string {
+    return (
+      process.env.QUEUE_ORDER_CREATED_EVENT ||
+      env.RABBITMQ.QUEUES.ORDER_CREATED_EVENT ||
+      "ORDER_CREATED_EVENT"
+    );
+  }
+
+  static get EXCHANGE_ORDER_COMPLETED_EVENT(): string {
+    return (
+      process.env.EXCHANGE_ORDER_COMPLETED_EVENT ||
+      env.RABBITMQ.EXCHANGES.EXCHANGE_ORDER_COMPLETED_EVENT
+    );
+  }
 }

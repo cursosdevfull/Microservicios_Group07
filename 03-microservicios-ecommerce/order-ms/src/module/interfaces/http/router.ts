@@ -1,13 +1,18 @@
 import express from "express";
 import Controller from "./controller";
-import AuthApplication from "../../application/order.application";
-import AuthInfrastructure from "../../infrastructure/auth.infrastructure";
+import OrderApplication from "../../application/order.application";
+import OrderInfrastructure from "../../infrastructure/order.infrastructure";
 import { ErrorsService } from "../../../services/errors.service";
 import ValidatorsService from "../../../services/validators.service";
 import { orderSchema } from "./order.schema";
+import BrokerInfrastructure from "../../infrastructure/broker.infrastructure";
 
-const infrastructure = new AuthInfrastructure();
-const application = new AuthApplication(infrastructure);
+const orderInfrastructure = new OrderInfrastructure();
+const brokerInfrastructure = new BrokerInfrastructure(orderInfrastructure);
+const application = new OrderApplication(
+  orderInfrastructure,
+  brokerInfrastructure
+);
 const controller = new Controller(application);
 
 class Router {

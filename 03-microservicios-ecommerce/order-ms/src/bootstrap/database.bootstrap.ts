@@ -9,7 +9,7 @@ export default class extends Bootstrap {
       const password = EnvironmentVariables.MONGO_PASSWORD;
       const host = EnvironmentVariables.MONGO_HOST;
       const port = EnvironmentVariables.MONGO_PORT;
-      const database = "auth";
+      const database = "order";
       const authSource = "admin";
 
       const connectionString = `mongodb://${username}:${password}@${host}:${port}/${database}?authSource=${authSource}&retryWrites=true&w=majority`;

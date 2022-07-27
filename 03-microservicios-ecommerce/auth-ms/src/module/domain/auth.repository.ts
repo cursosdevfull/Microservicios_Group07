@@ -6,7 +6,7 @@ export interface Tokens {
 }
 
 export default interface AuthRepository {
-  register(auth: Auth): Promise<void>;
+  register(auth: Auth): Promise<string>;
   findOne(where: { [s: string]: string | number }): Promise<Auth | null>;
   update(
     where: { [s: string]: string | number },
