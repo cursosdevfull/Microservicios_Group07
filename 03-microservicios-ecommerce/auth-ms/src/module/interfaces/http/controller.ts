@@ -39,10 +39,11 @@ export default class {
     const { accessToken } = req.body;
     this.application
       .validateAccessToken(accessToken)
-      .then(() => res.send("ok"))
-      .catch((err: { status: number; message: string }) =>
-        res.status(err.status).send(err.message)
-      );
+      .then(() => res.json({ valid: true }))
+      .catch((err: { status: number; message: string }) => {
+        console.log(err);
+        res.status(err.status).send(err.message);
+      });
   }
 
   async getNewAccessToken(req: Request, res: Response) {

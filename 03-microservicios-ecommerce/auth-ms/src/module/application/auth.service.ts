@@ -9,7 +9,7 @@ export default class AuthAppService {
     return uuidv4();
   }
 
-  static generateAccessToken(id:string, name: string): string {
+  static generateAccessToken(id: string, name: string): string {
     const payload = {
       id,
       name,

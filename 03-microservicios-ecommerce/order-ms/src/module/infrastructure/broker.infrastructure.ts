@@ -31,6 +31,8 @@ export default class BrokerInfrastructure implements BrokerRepository {
   async consumerOrderConfirmed(message: any) {
     const content = JSON.parse(message.content.toString());
 
+    console.log("Order confirmed: ", content);
+
     await this.orderInfrastructure.update(content.transactionId, "COMPLETED");
 
     UtilsBrokerService.confirmMessage(BrokerBootstrap.Channel, message);

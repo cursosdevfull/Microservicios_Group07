@@ -18,9 +18,7 @@ export default class AuthApplication {
     const cipherPassword = await AuthAppService.cipherPassword(password);
 
     const auth = new Auth(name, email, cipherPassword, refreshToken);
-    console.log("auth", auth);
     const id = await this.repository.register(auth);
-    console.log("id", id);
     const accessToken = AuthAppService.generateAccessToken(id, name);
 
     return { accessToken, refreshToken };

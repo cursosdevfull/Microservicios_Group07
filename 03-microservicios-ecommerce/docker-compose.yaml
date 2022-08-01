@@ -68,7 +68,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
+    container_name: rabbitmq-container
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -87,8 +87,6 @@ services:
       context: .
     image: image-auth-ms
     container_name: auth-ms
-    ports:
-      - "9000:8000"
     environment:
       - PORT=8000
       - MONGO_HOST=mongo-auth-ms
@@ -99,6 +97,7 @@ services:
       - TOKEN_SECRET_WORD=c2611b83-6f7f-47a3-b622-55e0a0ff3333
     depends_on:
       - mongo-auth-ms
+      - rabbitmq
     restart: always
     networks:
       - net-ms
@@ -109,16 +108,106 @@ services:
       context: .
     image: image-order-ms
     container_name: order-ms
-    ports:
-      - "9100:8000"
     environment:
       - PORT=8000
       - MONGO_HOST=mongo-order-ms
       - MONGO_PORT=27017
       - MONGO_USERNAME=root
       - MONGO_PASSWORD=12345
+      - RABBITMQ_HOST=rabbitmq:5672
+      - QUEUE_ORDER_CREATED_EVENT=ORDER_CREATED_EVENT
+      - EXCHANGE_ORDER_COMPLETED_EVENT=EXCHANGE_ORDER_COMPLETED_EVENT
     depends_on:
       - mongo-order-ms
+      - rabbitmq
+    restart: always
+    networks:
+      - net-ms
+
+  payment-ms:
+    build:
+      dockerfile: payment-ms/Dockerfile
+      context: .
+    image: image-payment-ms
+    container_name: payment-ms
+    environment:
+      - PORT=8000
+      - MONGO_HOST=mongo-payment-ms
+      - MONGO_PORT=27017
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=12345
+      - RABBITMQ_HOST=rabbitmq:5672
+      - QUEUE_ORDER_CREATED_EVENT=ORDER_CREATED_EVENT
+      - QUEUE_ORDER_PAID_EVENT=ORDER_PAID_EVENT
+      - EXCHANGE_ORDER_COMPLETED_EVENT=EXCHANGE_ORDER_COMPLETED_EVENT
+    depends_on:
+      - mongo-payment-ms
+      - rabbitmq
+    restart: always
+    networks:
+      - net-ms
+
+  store-ms:
+    build:
+      dockerfile: store-ms/Dockerfile
+      context: .
+    image: image-store-ms
+    container_name: store-ms
+    environment:
+      - PORT=8000
+      - MONGO_HOST=mongo-store-ms
+      - MONGO_PORT=27017
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=12345
+      - RABBITMQ_HOST=rabbitmq:5672
+      - QUEUE_ORDER_STORED_EVENT=ORDER_STORED_EVENT
+      - QUEUE_ORDER_PAID_EVENT=ORDER_PAID_EVENT
+      - EXCHANGE_ORDER_COMPLETED_EVENT=EXCHANGE_ORDER_COMPLETED_EVENT
+    depends_on:
+      - mongo-store-ms
+      - rabbitmq
+    restart: always
+    networks:
+      - net-ms
+
+  delivery-ms:
+    build:
+      dockerfile: delivery-ms/Dockerfile
+      context: .
+    image: image-delivery-ms
+    container_name: delivery-ms
+    environment:
+      - PORT=8000
+      - MONGO_HOST=mongo-delivery-ms
+      - MONGO_PORT=27017
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=12345
+      - RABBITMQ_HOST=rabbitmq:5672
+      - QUEUE_ORDER_STORED_EVENT=ORDER_STORED_EVENT
+      - EXCHANGE_ORDER_COMPLETED_EVENT=EXCHANGE_ORDER_COMPLETED_EVENT
+    depends_on:
+      - mongo-delivery-ms
+      - rabbitmq
+    restart: always
+    networks:
+      - net-ms
+
+  gateway:
+    build:
+      dockerfile: gateway/Dockerfile
+      context: .
+    image: image-gateway
+    container_name: gateway
+    ports:
+      - "9500:8000"
+    environment:
+      - PORT=8000
+      - PATH_ORDER=http://order-ms:8000
+      - PATH_AUTH=http://auth-ms:8000
+    depends_on:
+      - auth-ms
+      - order-ms
+      - rabbitmq
     restart: always
     networks:
       - net-ms
