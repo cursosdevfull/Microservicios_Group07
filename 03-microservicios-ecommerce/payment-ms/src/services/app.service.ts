@@ -39,4 +39,11 @@ export default class {
       process.env.QUEUE_ORDER_PAID_EVENT || env.RABBITMQ.QUEUES.ORDER_PAID_EVENT
     );
   }
+
+  static get EXCHANGE_ERROR_EVENT(): string {
+    return (
+      process.env.EXCHANGE_ERROR_EVENT ||
+      env.RABBITMQ.EXCHANGES.EXCHANGE_ERROR_EVENT
+    );
+  }
 }

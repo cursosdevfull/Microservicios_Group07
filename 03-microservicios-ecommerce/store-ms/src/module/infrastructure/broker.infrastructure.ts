@@ -17,6 +17,17 @@ export default class BrokerInfrastructure implements BrokerRepository {
     channel.sendToQueue(queueName, Buffer.from(JSON.stringify(message)));
   }
 
+  async sendError(message: any): Promise<any> {
+    const channel = BrokerBootstrap.Channel;
+    const exchangeName = EnvironmentVariables.EXCHANGE_ERROR_EVENT;
+    await channel.assertExchange(exchangeName, "topic", { durable: true });
+    channel.publish(
+      exchangeName,
+      "store.error",
+      Buffer.from(JSON.stringify(message))
+    );
+  }
+
   async receive(): Promise<any> {
     const channel = BrokerBootstrap.Channel;
     const queueName = EnvironmentVariables.QUEUE_ORDER_PAID_EVENT;
@@ -25,6 +36,12 @@ export default class BrokerInfrastructure implements BrokerRepository {
       channel,
       queueName,
       this.consumerAccept.bind(this)
+    );
+
+    await ReceiveMessageService.rejected(
+      channel,
+      this.consumerReject.bind(this),
+      "delivery.error"
     );
   }
 
@@ -43,5 +60,13 @@ export default class BrokerInfrastructure implements BrokerRepository {
     await this.storeInfrastructure.insert(store);
     UtilsBrokerService.confirmMessage(BrokerBootstrap.Channel, message);
     this.send(store);
+    //this.sendError(store);
+  }
+
+  async consumerReject(message: any) {
+    const content = JSON.parse(message.content.toString());
+
+    await this.storeInfrastructure.update(content.transactionId, "CANCELLED");
+    UtilsBrokerService.confirmMessage(BrokerBootstrap.Channel, message);
   }
 }
