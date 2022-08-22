@@ -26,6 +26,12 @@ export default class BrokerInfrastructure implements BrokerRepository {
       exchangeName,
       exchangeType
     );
+
+    await ReceiveMessageService.rejected(
+      channel,
+      this.consumerReject.bind(this),
+      "*.error"
+    );
   }
 
   async consumerOrderConfirmed(message: any) {
@@ -35,6 +41,13 @@ export default class BrokerInfrastructure implements BrokerRepository {
 
     await this.orderInfrastructure.update(content.transactionId, "COMPLETED");
 
+    UtilsBrokerService.confirmMessage(BrokerBootstrap.Channel, message);
+  }
+
+  async consumerReject(message: any) {
+    const content = JSON.parse(message.content.toString());
+
+    await this.orderInfrastructure.update(content.transactionId, "CANCELLED");
     UtilsBrokerService.confirmMessage(BrokerBootstrap.Channel, message);
   }
 }

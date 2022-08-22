@@ -40,4 +40,11 @@ export default class {
       env.RABBITMQ.EXCHANGES.EXCHANGE_ORDER_COMPLETED_EVENT
     );
   }
+
+  static get EXCHANGE_ERROR_EVENT(): string {
+    return (
+      process.env.EXCHANGE_ERROR_EVENT ||
+      env.RABBITMQ.EXCHANGES.EXCHANGE_ERROR_EVENT
+    );
+  }
 }

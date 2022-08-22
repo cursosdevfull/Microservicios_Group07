@@ -12,6 +12,17 @@ export default class BrokerInfrastructure implements BrokerRepository {
     private readonly deliveryInfrastructure: DeliveryInfrastructure
   ) {}
 
+  async sendError(message: any): Promise<any> {
+    const channel = BrokerBootstrap.Channel;
+    const exchangeName = EnvironmentVariables.EXCHANGE_ERROR_EVENT;
+    await channel.assertExchange(exchangeName, "topic", { durable: true });
+    channel.publish(
+      exchangeName,
+      "delivery.error",
+      Buffer.from(JSON.stringify(message))
+    );
+  }
+
   async send(message: any): Promise<any> {
     const channel = BrokerBootstrap.Channel;
     const exchangeName = EnvironmentVariables.EXCHANGE_ORDER_COMPLETED_EVENT;
@@ -43,8 +54,9 @@ export default class BrokerInfrastructure implements BrokerRepository {
       "PENDING"
     );
 
-    await this.deliveryInfrastructure.insert(delivery);
+    /*await this.deliveryInfrastructure.insert(delivery); */
     UtilsBrokerService.confirmMessage(BrokerBootstrap.Channel, message);
-    this.send(delivery);
+    //this.send(delivery);
+    this.sendError(delivery);
   }
 }
